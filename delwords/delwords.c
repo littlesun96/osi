@@ -28,6 +28,12 @@ int main(int argc, char *argv[]) {
         int f = 0;
         int i = 0;
         for (i = 0; i < len; i++) {
+            if (len - i < n) {
+                memmove(buf, buf + i, len - i);
+                int len1 = read_until(STDIN_FILENO, buf + len - i, sizeof(buf), argv[1][0]);
+                len = len1 + len - i;
+                i = 0;
+            }
             if (buf[i] == argv[1][0]) {
                 f = 0;
                 write_(STDOUT_FILENO, word, pos);
@@ -36,10 +42,12 @@ int main(int argc, char *argv[]) {
                 pos++;
                 int k;
                 for (k = 1; k < n; k++) {
+                    if (i + k < len) {
                         if (buf[i + k] != argv[1][k]) {
                             f = 1;
                             break;
                         }
+                    } else f = 1;   
                 }
                 if (f == 0) {
                     i += n - 1;
