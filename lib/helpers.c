@@ -48,6 +48,31 @@ ssize_t read_until(int fd, void *buf, size_t count, char delimeter) {
 	}
 }
 
+int spawn(const char * file, char * const argv[]) {
+	pid_d pid = fork();
+	if (pid == -1) {
+		fprintf(stderr, "%\n", strerror(errno));
+		return -1;
+	}
+	if (pid == 0) {
+		if (execvp(file, argv) == -1) {
+			fprintf(stderr, "%\n", strerror(errno));
+			return -1;
+		}
+        } else {
+                int status;
+                if (waitpid(pid, &status, 0) == -1) {
+			fprintf(stderr, "%\n", strerror(errno));
+			return -1; 
+                }
+                if (WIFEXITED(status)) {
+                        return WEXITSTATUS(status);
+                } else {
+                        return -1;
+                }
+        }
+}
+
 ssize_t write_(int fd, const void *buf, size_t count) {
 	size_t res = 0;
 	size_t len = 0;
